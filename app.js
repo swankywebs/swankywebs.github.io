@@ -236,6 +236,34 @@
     return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
+  function normalizeExternalUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    try {
+      return new URL(trimmed, window.location.href).href;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function setExternalLink(el, url) {
+    if (!el) return;
+    const normalized = normalizeExternalUrl(url);
+    if (!normalized) {
+      el.href = '#';
+      el.hidden = true;
+      el.onclick = null;
+      return;
+    }
+    el.hidden = false;
+    el.href = normalized;
+    el.onclick = (event) => {
+      event.stopPropagation();
+      window.open(normalized, '_blank', 'noopener,noreferrer');
+    };
+  }
+
   function formatGuessInput(val) {
     const digits = val.replace(/[^0-9]/g, '');
     if (!digits) return '';
@@ -1108,14 +1136,8 @@
     els.resultEmoji.textContent = emoji;
     els.resultTitle.textContent = line;
     els.resultLocation.textContent = getResultLocationLabel(round);
-    els.btnMap.href = buildMapsUrl(round);
-    if (round.sourceUrl) {
-      els.btnRedfin.href = round.sourceUrl;
-      els.btnRedfin.hidden = false;
-    } else {
-      els.btnRedfin.href = '#';
-      els.btnRedfin.hidden = true;
-    }
+    setExternalLink(els.btnMap, buildMapsUrl(round));
+    setExternalLink(els.btnRedfin, round.sourceUrl);
     els.resultActual.textContent = formatPrice(actual);
     els.resultGuess.textContent = formatPrice(guess);
     els.resultAccuracy.textContent = `${pctOff.toFixed(1)}% off`;
