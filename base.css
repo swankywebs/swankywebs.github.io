@@ -77,3 +77,26 @@ button { cursor: pointer; background: none; border: none; }
   border-radius: 16px;
   box-sizing: border-box;
 }
+/* Keep action buttons visible */
+.result-actions {
+  position: sticky;
+  bottom: 0;
+
+  background: var(--color-bg);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .result-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .result-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .result-details {
+    font-size: 0.95rem;
+  }
+}
