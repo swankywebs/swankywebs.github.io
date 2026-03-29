@@ -961,6 +961,11 @@
     updatePhotoNav();
     els.guessInput.value = '';
     els.resultOverlay.classList.remove('active');
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+if (!isMobile) {
+  els.guessInput.focus();
+}
     renderUnlockedAchievements('#achievement-unlocked', []);
     renderUnlockedAchievements('#gameover-achievements', []);
     preloadNextRoundPhoto();
