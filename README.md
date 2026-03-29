@@ -1,6 +1,6 @@
 # Realty Roulette
 
-Realty Roulette is a static web game where players guess the listing price of active Redfin homes across a national mode and a 50-state challenge mode.
+Realty Roulette is a static web game where players guess the listing price of active Redfin homes across a national mode and a 51-state challenge mode.
 
 ## Production Files
 
