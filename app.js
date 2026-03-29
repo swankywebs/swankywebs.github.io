@@ -960,7 +960,6 @@
     loadPhoto(round.mainPhoto);
     updatePhotoNav();
     els.guessInput.value = '';
-    els.guessInput.focus();
     els.resultOverlay.classList.remove('active');
     renderUnlockedAchievements('#achievement-unlocked', []);
     renderUnlockedAchievements('#gameover-achievements', []);
