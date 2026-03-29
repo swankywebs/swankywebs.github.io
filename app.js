@@ -859,13 +859,22 @@
     $('#btn-lb-back').addEventListener('click', maybeGoHome);
     els.btnSaveScore.addEventListener('click', saveScore);
 
-    els.guessInput.addEventListener('input', (e) => {
-      const pos = e.target.selectionStart;
-      const oldLen = e.target.value.length;
-      e.target.value = formatGuessInput(e.target.value);
-      const newLen = e.target.value.length;
-      e.target.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
-    });
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+els.guessInput.addEventListener('input', (e) => {
+  const pos = e.target.selectionStart;
+  const oldLen = e.target.value.length;
+
+  e.target.value = formatGuessInput(e.target.value);
+
+  if (!isMobile) {
+    const newLen = e.target.value.length;
+    e.target.setSelectionRange(
+      pos + (newLen - oldLen),
+      pos + (newLen - oldLen)
+    );
+  }
+});
 
     els.guessInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') submitGuess();
