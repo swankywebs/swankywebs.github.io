@@ -40,33 +40,34 @@
       </div>
     </div>
     <div class="app-notice" id="app-notice" aria-live="polite">Loading listing data...</div>
-    <div class="game-select">
-      <div class="mode-card mode-card-national">
-        <span class="mode-card-badge">Main Mode</span>
-        <h3>National Game</h3>
-        <p>Test your knowledge of the national housing market.</p>
-        <button class="btn-primary" id="btn-start">
-          New Game
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+    <div class="start-main">
+      <div class="game-select">
+        <div class="mode-card mode-card-national">
+          <span class="mode-card-badge">Main Mode</span>
+          <h3>National Game</h3>
+          <p>Test your knowledge of the national housing market.</p>
+          <button class="btn-primary" id="btn-start">
+            New Game
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
       <div class="mode-card mode-card-state">
         <span class="mode-card-badge mode-card-badge-secondary">Mini-Game</span>
         <h3>State Challenge</h3>
-        <p>A one-shot side challenge. Pick one state, play its five-home run once, and lock in the medal you earn.</p>
+        <p>Pick a state, play its five-home run once, and lock in the medal you earn.</p>
         <p class="game-status" id="state-status"></p>
-        <label class="state-picker-label" for="state-select">Pick a state</label>
-        <select class="state-select" id="state-select"></select>
-        <div class="state-progress-grid" id="state-progress-grid"></div>
         <button class="btn-secondary" id="btn-state-start">Play Selected State</button>
+        <label class="state-picker-label">Choose a state</label>
+        <div class="state-progress-grid" id="state-progress-grid" aria-label="State challenge progress"></div>
       </div>
-    </div>
-    <div class="achievements-panel">
-      <div class="achievements-head">
-        <h3>Achievements</h3>
-        <span class="achievement-count" id="achievement-count">0 / 7 unlocked</span>
+      <div class="achievements-panel">
+        <div class="achievements-head">
+          <h3>Achievements</h3>
+          <span class="achievement-count" id="achievement-count">0 / 7 unlocked</span>
+        </div>
+        <div class="achievement-list" id="achievement-list"></div>
       </div>
-      <div class="achievement-list" id="achievement-list"></div>
     </div>
   </div>
 
@@ -158,9 +159,11 @@
         </div>
       </div>
       <div class="result-actions">
-        <a class="btn-secondary btn-map" id="btn-map" href="#" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
-        <a class="btn-secondary btn-map" id="btn-redfin" href="#" target="_blank" rel="noopener noreferrer">View on Redfin</a>
         <button class="btn-next" id="btn-next">Next Round</button>
+        <div class="result-links">
+          <a class="btn-secondary btn-map" id="btn-map" href="#" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+          <a class="btn-secondary btn-map" id="btn-redfin" href="#" target="_blank" rel="noopener noreferrer">View on Redfin</a>
+        </div>
       </div>
       <div class="achievement-unlocked" id="achievement-unlocked"></div>
     </div>
@@ -176,10 +179,6 @@
     <div class="state-medal" id="state-medal"></div>
     <div class="achievement-unlocked gameover-achievements" id="gameover-achievements"></div>
     <div class="round-summary" id="round-summary"></div>
-    <a class="support-qr-card gameover-support" href="https://venmo.com/code?user_id=2042514462736384163" target="_blank" rel="noopener noreferrer" aria-label="Open Venmo support link">
-      <img src="./venmo-qr.png" alt="Venmo QR code for Colin Lowe">
-      <span>Enjoying Realty Roulette? Buy me a coffee.</span>
-    </a>
     <div class="name-input-group">
       <input type="text" id="name-input" class="name-input" placeholder="Your name" maxlength="20" autocomplete="off">
       <button class="btn-primary" id="btn-save-score" style="padding: var(--space-2) var(--space-6); white-space: nowrap;">Save Score</button>
@@ -226,6 +225,23 @@
   <!-- FOOTER -->
   <footer class="footer">
     <p>Listing data from <a href="https://www.redfin.com" target="_blank" rel="noopener noreferrer">Redfin</a>. Prices reflect time of data collection.</p>
+    <div class="share-strip" aria-label="Share the game">
+      <span class="share-strip-copy">Like the game? Share with your friends!</span>
+      <div class="share-strip-actions">
+        <button class="share-btn share-btn-small" id="btn-footer-share-text" type="button" aria-label="Share game by text message">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H9l-4.5 4v-4.25A2.48 2.48 0 0 1 4 13.5v-8zm2.5-.7a.7.7 0 0 0-.7.7v8a.7.7 0 0 0 .7.7H9.7l2.6-2.3h5.2a.7.7 0 0 0 .7-.7v-8a.7.7 0 0 0-.7-.7h-11z" fill="currentColor"/></svg>
+        </button>
+        <button class="share-btn share-btn-small" id="btn-footer-share-instagram" type="button" aria-label="Share game on Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.8A3.95 3.95 0 0 0 3.8 7.75v8.5a3.95 3.95 0 0 0 3.95 3.95h8.5a3.95 3.95 0 0 0 3.95-3.95v-8.5a3.95 3.95 0 0 0-3.95-3.95h-8.5zm8.9 1.35a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM12 6.6A5.4 5.4 0 1 1 6.6 12 5.4 5.4 0 0 1 12 6.6zm0 1.8A3.6 3.6 0 1 0 15.6 12 3.6 3.6 0 0 0 12 8.4z" fill="currentColor"/></svg>
+        </button>
+        <button class="share-btn share-btn-small" id="btn-footer-share-x" type="button" aria-label="Share game on X">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21.5l-7.11 8.128L22.75 22h-6.547l-5.128-6.71L5.2 22H1.94l7.604-8.69L1.5 2H8.21l4.635 6.129L18.244 2zm-1.148 18h1.804L7.23 3.894H5.294L17.096 20z" fill="currentColor"/></svg>
+        </button>
+        <button class="share-btn share-btn-small" id="btn-footer-share-facebook" type="button" aria-label="Share game on Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8.4h2.82l.42-3.27H13.5V8.25c0-.945.27-1.59 1.62-1.59h1.74V3.72c-.3-.045-1.335-.12-2.535-.12-2.505 0-4.215 1.53-4.215 4.35v2.385H7.25v3.27h2.865V22h3.385z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
     <div class="support-block">
       <a class="support-link support-link-mobile" href="https://venmo.com/code?user_id=2042514462736384163" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
     </div>

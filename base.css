@@ -17,8 +17,8 @@ body {
   font-size: var(--text-base);
   color: var(--color-text);
   background:
-    radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 30%),
-    linear-gradient(180deg, #fcfcfa 0%, var(--color-bg) 32%, #f6f4ee 100%);
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
+    linear-gradient(180deg, #fcfcfa 0%, var(--color-bg) 36%, #f4f1ea 100%);
   background-color: var(--color-bg);
 }
 
@@ -48,55 +48,3 @@ p, li, figcaption { text-wrap: pretty; max-width: 72ch; }
 }
 
 button { cursor: pointer; background: none; border: none; }
-/* ============================= */
-/* MOBILE RESULT SCREEN FIX */
-/* ============================= */
-
-/* Allow overlay to scroll */
-.result-overlay {
-  position: fixed;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 16px;
-  overflow-y: auto; /* 🔥 key fix */
-}
-
-/* Prevent card from exceeding screen */
-.result-card {
-  width: 100%;
-  max-width: 520px;
-
-  max-height: 100dvh; /* 🔥 key fix */
-  overflow-y: auto;   /* 🔥 key fix */
-
-  padding: 20px;
-  border-radius: 16px;
-  box-sizing: border-box;
-}
-/* Keep action buttons visible */
-.result-actions {
-  position: sticky;
-  bottom: 0;
-
-  background: var(--color-bg);
-  padding-top: 12px;
-  margin-top: 12px;
-}
-@media (max-width: 600px) {
-  .result-card {
-    padding: 16px;
-    border-radius: 12px;
-  }
-
-  .result-card h3 {
-    font-size: 1.25rem;
-  }
-
-  .result-details {
-    font-size: 0.95rem;
-  }
-}

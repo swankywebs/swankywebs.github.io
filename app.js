@@ -18,7 +18,6 @@
   let roundLocked = false;
   let usedQuips = {};
   const SETTINGS_ENABLED = false;
-
   const nationalPlayedStorageKey = 'realty-roulette-national-played-v1';
   const stateChallengeStorageKey = 'realty-roulette-state-challenge-v1';
   const selectedStateStorageKey = 'realty-roulette-selected-state-v1';
@@ -136,15 +135,15 @@
     },
   ];
   const achievementDefinitions = [
-    { id: 'exact_price', name: 'Bullseye', description: 'Guess a listing price exactly right.' },
-    { id: 'game_20000', name: '20K Club', description: 'Score 20,000 or more in a single game.' },
-    { id: 'all_bronze', name: 'All Bronze States', description: 'Earn at least bronze in every state challenge.' },
-    { id: 'all_silver', name: 'All Silver States', description: 'Earn at least silver in every state challenge.' },
-    { id: 'all_gold', name: 'All Gold States', description: 'Earn gold in every state challenge.' },
-    { id: 'game_15000', name: '15K Club', description: 'Score 15,000 or more in a single game.' },
-    { id: 'round_4500_no_hints', name: 'No-Help Heater', description: 'Score over 4,500 in a round without using hints.' },
-    { id: 'all_hints_round', name: 'Just Guess Bro', description: 'Use every available hint in a single round.' },
-    { id: 'no_hints_game', name: 'No Hints Please!', description: 'Finish a full game without using a single hint.' },
+    { id: 'round_4500_no_hints', name: 'No-Help Heater', description: 'Score over 4,500 in a round without using hints.', icon: '🔥' },
+    { id: 'no_hints_game', name: 'No Hints Please!', description: 'Finish a full game without using a single hint.', icon: '🚫' },
+    { id: 'all_hints_round', name: 'Just Guess Bro', description: 'Use every available hint in a single round.', icon: '🕵️' },
+    { id: 'game_15000', name: '15K Club', description: 'Score 15,000 or more in a single game.', icon: '⭐' },
+    { id: 'game_20000', name: '20K Club', description: 'Score 20,000 or more in a single game.', icon: '🏆' },
+    { id: 'exact_price', name: 'Bullseye', description: 'Guess a listing price exactly right.', icon: '🎯' },
+    { id: 'all_bronze', name: 'All Bronze States', description: 'Earn at least bronze in every state challenge.', icon: '🥉' },
+    { id: 'all_silver', name: 'All Silver States', description: 'Earn at least silver in every state challenge.', icon: '🥈' },
+    { id: 'all_gold', name: 'All Gold States', description: 'Earn gold in every state challenge.', icon: '🥇' },
   ];
   const hintConfig = {
     location: { cost: 500, requires: () => true },
@@ -173,13 +172,16 @@
     toggleNightMode: $('#toggle-night-mode'),
     toggleMusic: $('#toggle-music'),
     bgMusic: $('#bg-music'),
-    stateSelect: $('#state-select'),
     stateProgressGrid: $('#state-progress-grid'),
     btnGuess: $('#btn-guess'),
     btnNext: $('#btn-next'),
     btnPlayAgain: $('#btn-play-again'),
     btnNewGameOver: $('#btn-new-game-over'),
     btnViewLeaderboard: $('#btn-view-leaderboard'),
+    btnFooterShareText: $('#btn-footer-share-text'),
+    btnFooterShareInstagram: $('#btn-footer-share-instagram'),
+    btnFooterShareX: $('#btn-footer-share-x'),
+    btnFooterShareFacebook: $('#btn-footer-share-facebook'),
     btnSaveScore: $('#btn-save-score'),
     btnMap: $('#btn-map'),
     btnRedfin: $('#btn-redfin'),
@@ -236,6 +238,23 @@
     return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
+  function getShareUrl() {
+    if (window.location.protocol === 'file:') return 'https://example.com';
+    return window.location.href;
+  }
+
+  function getInviteShareText() {
+    return `Think you know the housing market? Try Realty Roulette: guess the asking price of real homes for sale. ${getShareUrl()}`;
+  }
+
+  function buildSmsUrl(message) {
+    return `sms:?&body=${encodeURIComponent(message)}`;
+  }
+
+  function openShareWindow(url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   function normalizeExternalUrl(url) {
     if (!url || typeof url !== 'string') return '';
     const trimmed = url.trim();
@@ -264,6 +283,10 @@
     };
   }
 
+  function shouldAutofocusGuessInput() {
+    return !window.matchMedia('(max-width: 640px), (pointer: coarse)').matches;
+  }
+
   function formatGuessInput(val) {
     const digits = val.replace(/[^0-9]/g, '');
     if (!digits) return '';
@@ -286,7 +309,7 @@
   function calculateScore(guess, actual) {
     if (actual === 0) return 0;
     const pctError = Math.abs(guess - actual) / actual;
-    const raw = Math.max(0, 5000 * (1 - Math.pow(pctError, 0.58) * 0.78));
+    const raw = Math.max(0, 5000 * (1 - Math.pow(pctError, 0.68) * 0.88));
     return Math.round(raw);
   }
 
@@ -469,8 +492,8 @@
   }
 
   function showScreen(name) {
-    Object.values(screens).forEach((s) => s.classList.remove('active'));
-    screens[name].classList.add('active');
+    Object.values(screens).filter(Boolean).forEach((s) => s.classList.remove('active'));
+    if (screens[name]) screens[name].classList.add('active');
   }
 
   function maybeGoHome() {
@@ -639,14 +662,16 @@
 
     container.innerHTML = '';
     achievementDefinitions.forEach((item) => {
+      const icon = item.icon || '★';
       const row = document.createElement('div');
       row.className = `achievement-item${achievements[item.id] ? ' unlocked' : ''}`;
       row.innerHTML = `
-        <div class="achievement-icon">${achievements[item.id] ? '★' : '○'}</div>
+        <div class="achievement-icon" aria-hidden="true">${icon}</div>
         <div class="achievement-copy">
           <div class="achievement-name">${escapeHtml(item.name)}</div>
           <div class="achievement-description">${escapeHtml(item.description)}</div>
         </div>
+        <div class="achievement-icon achievement-icon-mirror" aria-hidden="true">${icon}</div>
       `;
       container.appendChild(row);
     });
@@ -684,12 +709,12 @@
   }
 
   function getSelectedStateGameIndex() {
-    const selected = els.stateSelect?.value;
+    const selected = loadSelectedState();
     return getStateGames().findIndex((game) => game.state === selected);
   }
 
   function renderStatePicker() {
-    if (!els.stateSelect || !els.stateProgressGrid) return;
+    if (!els.stateProgressGrid) return;
     const games = getStateGames();
     const progress = loadStateProgress();
     const selectedState = loadSelectedState();
@@ -700,44 +725,34 @@
     );
     const firstAvailableState = games.find((game) => !playedStates.has(game.state))?.state || '';
 
-    els.stateSelect.innerHTML = '';
-    games.forEach((game) => {
-      const option = document.createElement('option');
-      option.value = game.state;
-      const medal = progress.medals[game.state] || 'none';
-      const isPlayed = playedStates.has(game.state);
-      option.disabled = isPlayed;
-      option.textContent = `${game.name}${medal !== 'none' ? ` (${medal})` : ''}${isPlayed ? ' — completed' : ''}`;
-      els.stateSelect.appendChild(option);
-    });
-
     const selectedIsAvailable = games.some((game) => game.state === selectedState && !playedStates.has(game.state));
-    els.stateSelect.value = selectedIsAvailable ? selectedState : firstAvailableState;
+    const activeState = selectedIsAvailable ? selectedState : firstAvailableState;
 
     els.stateProgressGrid.innerHTML = '';
-    games.forEach((game) => {
+    games
+      .slice()
+      .sort((a, b) => a.state.localeCompare(b.state))
+      .forEach((game) => {
       const medal = progress.medals[game.state] || 'none';
       const isPlayed = playedStates.has(game.state);
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = `state-progress-chip${els.stateSelect.value === game.state ? ' active' : ''}${isPlayed ? ' completed' : ''}`;
-      button.dataset.state = game.state;
-      button.disabled = isPlayed;
-      button.innerHTML = `
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `state-progress-chip ${medal}${isPlayed && medal === 'none' ? ' failed' : ''}${activeState === game.state ? ' active' : ''}${isPlayed ? ' completed' : ''}`;
+      chip.disabled = isPlayed;
+      chip.innerHTML = `
         <span class="state-progress-code">${game.state}</span>
         <span class="state-progress-star ${medal}">${getMedalSymbol(medal)}</span>
       `;
-      button.title = `${game.name}${medal !== 'none' ? ` • ${medal} medal` : ''}${isPlayed ? ' • completed' : ''}`;
-      button.addEventListener('click', () => {
+      chip.title = `${game.name}${medal !== 'none' ? ` • ${medal} medal` : ''}${isPlayed ? ' • completed' : ''}`;
+      chip.addEventListener('click', () => {
         if (isPlayed) return;
-        els.stateSelect.value = game.state;
         saveSelectedState(game.state);
         renderStatePicker();
       });
-      els.stateProgressGrid.appendChild(button);
+      els.stateProgressGrid.appendChild(chip);
     });
 
-    els.btnStateStart.disabled = !firstAvailableState || !els.stateSelect.value;
+    els.btnStateStart.disabled = !firstAvailableState || !activeState;
     els.btnStateStart.textContent = firstAvailableState ? 'Play Selected State' : 'All State Challenges Complete';
   }
 
@@ -755,7 +770,7 @@
     const gold = medals.filter((m) => m === 'gold').length;
     const silver = medals.filter((m) => m === 'silver').length;
     const bronze = medals.filter((m) => m === 'bronze').length;
-    stateStatus.textContent = `${clearedCount} / ${getStateGames().length || 50} state challenges completed • ${gold} gold • ${silver} silver • ${bronze} bronze`;
+    stateStatus.innerHTML = `${clearedCount} / ${getStateGames().length || 50} state challenges completed<br>${gold} gold • ${silver} silver • ${bronze} bronze`;
     renderStatePicker();
     renderAchievements();
   }
@@ -839,10 +854,6 @@
         await syncMusicPlayback();
       });
     }
-    els.stateSelect.addEventListener('change', (e) => {
-      saveSelectedState(e.target.value);
-      renderStatePicker();
-    });
     els.btnGuess.addEventListener('click', submitGuess);
     els.btnNext.addEventListener('click', nextRound);
     els.btnNewGameOver.addEventListener('click', () => {
@@ -856,25 +867,34 @@
       maybeGoHome();
     });
     els.btnViewLeaderboard.addEventListener('click', showLeaderboard);
+    els.btnFooterShareText.addEventListener('click', () => {
+      openShareWindow(buildSmsUrl(getInviteShareText()));
+    });
+    els.btnFooterShareX.addEventListener('click', () => {
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getInviteShareText())}`;
+      openShareWindow(shareUrl);
+    });
+    els.btnFooterShareFacebook.addEventListener('click', () => {
+      const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}&quote=${encodeURIComponent(getInviteShareText())}`;
+      openShareWindow(shareUrl);
+    });
+    els.btnFooterShareInstagram.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(getInviteShareText());
+        window.alert('Game link copied. Paste it into your Instagram post or story.');
+      } catch (e) {}
+      openShareWindow('https://www.instagram.com/');
+    });
     $('#btn-lb-back').addEventListener('click', maybeGoHome);
     els.btnSaveScore.addEventListener('click', saveScore);
 
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-els.guessInput.addEventListener('input', (e) => {
-  const pos = e.target.selectionStart;
-  const oldLen = e.target.value.length;
-
-  e.target.value = formatGuessInput(e.target.value);
-
-  if (!isMobile) {
-    const newLen = e.target.value.length;
-    e.target.setSelectionRange(
-      pos + (newLen - oldLen),
-      pos + (newLen - oldLen)
-    );
-  }
-});
+    els.guessInput.addEventListener('input', (e) => {
+      const pos = e.target.selectionStart;
+      const oldLen = e.target.value.length;
+      e.target.value = formatGuessInput(e.target.value);
+      const newLen = e.target.value.length;
+      e.target.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+    });
 
     els.guessInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') submitGuess();
@@ -969,12 +989,12 @@ els.guessInput.addEventListener('input', (e) => {
     loadPhoto(round.mainPhoto);
     updatePhotoNav();
     els.guessInput.value = '';
+    if (shouldAutofocusGuessInput()) {
+      els.guessInput.focus();
+    } else {
+      els.guessInput.blur();
+    }
     els.resultOverlay.classList.remove('active');
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-if (!isMobile) {
-  els.guessInput.focus();
-}
     renderUnlockedAchievements('#achievement-unlocked', []);
     renderUnlockedAchievements('#gameover-achievements', []);
     preloadNextRoundPhoto();
@@ -1205,15 +1225,16 @@ if (!isMobile) {
 
     const medalEl = els.stateMedal;
     medalEl.className = 'state-medal';
+    let medal = 'none';
     if (currentMode === 'state') {
-      const medal = getMedal(totalScore);
+      medal = getMedal(totalScore);
       awardStateMedal(game, totalScore);
       medalEl.classList.add(medal);
       medalEl.textContent = medal === 'none' ? 'No medal this time' : `${medal[0].toUpperCase()}${medal.slice(1)} medal`;
       els.finalScoreLabel.textContent = `${game.name} challenge total`;
       els.nameInputGroup.style.display = 'none';
       els.btnViewLeaderboard.style.display = 'none';
-      els.btnNewGameOver.textContent = 'New State Game';
+      els.btnNewGameOver.style.display = 'none';
     } else {
       medalEl.textContent = '';
       els.finalScoreLabel.textContent = 'out of 25,000 possible points';
@@ -1221,6 +1242,7 @@ if (!isMobile) {
       els.btnViewLeaderboard.style.display = '';
       els.btnSaveScore.disabled = false;
       els.btnSaveScore.textContent = 'Save Score';
+      els.btnNewGameOver.style.display = '';
       els.btnNewGameOver.textContent = 'New Game';
     }
 
