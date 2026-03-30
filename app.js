@@ -512,6 +512,22 @@
     showScreen('start');
   }
 
+  function trackAnalyticsEvent(name, params = {}) {
+    if (typeof window.gtag !== 'function') return;
+    try {
+      window.gtag('event', name, params);
+    } catch (e) {}
+  }
+
+  function getAccuracyBand(pctOff) {
+    if (pctOff <= 5) return 'bullseye';
+    if (pctOff <= 15) return 'close';
+    if (pctOff <= 30) return 'warm';
+    if (pctOff <= 60) return 'wide';
+    if (pctOff <= 100) return 'far';
+    return 'way_off';
+  }
+
   function setAppNotice(message, type = 'info') {
     if (!els.appNotice) return;
     if (!message) {
@@ -641,6 +657,15 @@
     if (unlockedNow.length > 0) {
       saveAchievements(achievements);
       newlyUnlockedAchievements = newlyUnlockedAchievements.concat(unlockedNow);
+      unlockedNow.forEach((id) => {
+        trackAnalyticsEvent('achievement_earned', {
+          achievement_id: id,
+          achievement_name: getAchievementLabel(id),
+          game_mode: currentMode,
+          state_code: currentMode === 'state' ? getCurrentGame()?.state || '' : '',
+          round_number: currentRound + 1,
+        });
+      });
       renderAchievements();
     }
     return unlockedNow;
@@ -913,6 +938,10 @@
   function startNationalGame() {
     syncMusicPlayback();
     currentMode = 'national';
+    trackAnalyticsEvent('game_start', {
+      game_mode: 'national',
+      total_games_available: getNationalGames().length,
+    });
     currentGameIndex = chooseRandomNationalGameIndex();
     if (currentGameIndex < 0) return;
     currentRound = 0;
@@ -939,6 +968,11 @@
     gameHintUsed = false;
     roundScores = [];
     usedQuips = {};
+    trackAnalyticsEvent('game_start', {
+      game_mode: 'state',
+      state_code: getStateGames()[currentGameIndex]?.state || '',
+      state_name: getStateGames()[currentGameIndex]?.name || '',
+    });
     showScreen('game');
     loadRound();
   }
@@ -1054,6 +1088,15 @@
     btn.classList.add('used');
     btn.disabled = true;
 
+    trackAnalyticsEvent('hint_used', {
+      game_mode: currentMode,
+      state_code: currentMode === 'state' ? round.state : '',
+      round_number: currentRound + 1,
+      hint_type: type,
+      hint_cost: hintConfig[type].cost,
+      hints_used_total: hintCount,
+    });
+
     const cost = btn.querySelector('.hint-cost');
     if (cost) cost.style.display = 'none';
 
@@ -1105,6 +1148,20 @@
     const baseScore = calculateScore(guess, actual);
     const roundPoints = Math.max(0, baseScore - hintPenaltyTotal);
     const pctOff = (Math.abs(guess - actual) / actual) * 100;
+
+    const usedHints = Object.keys(hintsRevealed).filter((key) => hintsRevealed[key]);
+
+    trackAnalyticsEvent('round_guess', {
+      game_mode: currentMode,
+      state_code: currentMode === 'state' ? round.state : '',
+      round_number: currentRound + 1,
+      pct_off: Number(pctOff.toFixed(2)),
+      accuracy_band: getAccuracyBand(pctOff),
+      hints_used: hintCount,
+      hints_used_list: usedHints.join(','),
+      points_earned: roundPoints,
+      guess_direction: guess < actual ? 'under' : guess > actual ? 'over' : 'exact',
+    });
 
     totalScore += roundPoints;
     roundScores.push({
@@ -1245,6 +1302,16 @@
       els.btnNewGameOver.style.display = '';
       els.btnNewGameOver.textContent = 'New Game';
     }
+
+    trackAnalyticsEvent('game_complete', {
+      game_mode: currentMode,
+      state_code: currentMode === 'state' ? game.state : '',
+      final_score: totalScore,
+      medal: currentMode === 'state' ? medal : '',
+      rounds_played: roundScores.length,
+      achievements_earned_count: newlyUnlockedAchievements.length,
+      achievements_earned_list: newlyUnlockedAchievements.join(','),
+    });
 
     const gameUnlocks = [];
     if (totalScore >= 20000) gameUnlocks.push('game_20000');

@@ -1,6 +1,6 @@
 # Realty Roulette GitHub Pages Package
 
-This folder contains the current static site bundle for GitHub Pages.
+This folder contains the current Desktop Realty Roulette v1 static site bundle for GitHub Pages.
 
 Publish steps:
 1. Create or open your GitHub repository.
